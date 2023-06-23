@@ -249,8 +249,8 @@ void Synchronizer::Imu_associateTimeStampsAndCleanUp() {
   imu_time_idx = imu_time_stamp_candidates_.begin();
   while (imu_idx != imu_candidates_.end()) {
     if (imu_idx->number <= last_imu) {
-      // ROS_WARN("%s: Deleted old imu message %ld.",
-      //          imu_fast_pub_topic_.c_str(), imu_idx->number);
+      ROS_WARN("%s: Deleted old imu message %ld.",
+               imu_fast_pub_topic_.c_str(), imu_idx->number);
       imu_idx = imu_candidates_.erase(imu_idx);
     } else {
       ++imu_idx;
