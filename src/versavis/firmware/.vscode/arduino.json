@@ -1,0 +1,6 @@
+{
+    "board": "VersaVIS:samd:VersaVIS",
+    "programmer": "VersaVIS:sam_ice",
+    "port": "/dev/ttyACM0",
+    "sketch": "everysync/everysync.ino"
+}

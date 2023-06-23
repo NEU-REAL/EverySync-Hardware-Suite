@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>ext_clk_msgs</name>
+  <version>0.0.1</version>
+  <description>The ext_clk_msgs package</description>
+  <maintainer email="1035309950@qq.com">Xuankang Wu</maintainer>
+  <license>closed</license>
+  <url type="website">https://github.com/TheConquerK/every_sync_master/</url>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>message_generation</depend>
+  <depend>message_runtime</depend>
+  <depend>sensor_msgs</depend>
+  <depend>std_msgs</depend>
+
+  <export>
+    <nodelet plugin="${prefix}/nodelet_plugin.xml" />
+  </export>
+</package>

@@ -1,0 +1,9 @@
+<library path="lib/libevery_sync_nodelet">
+  <class name="every_sync/EverySyncNodelet" 
+    type="every_sync::EverySyncNodelet"
+    base_class_type="nodelet::Nodelet">
+  <description>
+  This is the every_sync synchronizer nodelet.
+  </description>
+  </class>
+</library>

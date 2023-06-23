@@ -1,0 +1,104 @@
+<launch>
+  <!-- BASIC DRIVER FOR SENSORS (REALVIS-TRIGGER-BOARD) -->
+  <arg name="model" default="$(find xsens_driver)/urdf/MTi_6xx.urdf"/>
+  <arg name="rvizconfig" default="$(find xsens_driver)/rviz/display.rviz" />
+  
+  <!-- <include file="$(find xsens_mti_driver)/launch/xsens_mti_node.launch" /> -->
+  <include file="$(find xsens_driver)/launch/xsens_driver.launch" />
+
+  <include file="$(find pylon_camera)/launch/pylon_basler1920_node.launch" />
+
+  <include file="$(find hikrobot_camera)/launch/hikrobot_camera.launch" />
+
+  <include file="$(find livox_ros_driver)/launch/livox_lidar_realvis.launch" />
+ 	<node pkg="tf" type="static_transform_publisher" name="tf_livox" args="0.0 0.0 0.0 0.0 0.0 0.0 /world /livox_frame 10"/>
+
+  <param name="robot_description" command="$(find xacro)/xacro --inorder $(arg model)" />
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
+  <!-- ********************************************************************************** -->
+
+  <!-- camera name prefix -->
+  <arg name="camera_name"             default="REAL" />
+  <arg name="camera_type"             default="usb" />
+  <!-- camera manager -->
+  <arg name="camera_manager"          default="$(arg camera_name)_camera_manager" />
+
+  
+  <!-- camera nodelet system -->
+
+    <node pkg="nodelet" type="nodelet" name="$(arg camera_manager)"
+          args="manager"
+          output="screen"
+          required="true" >
+       <param name="num_worker_threads" value="4" />
+    </node>
+
+  <!-- cam0-xsens mti-630 imu -->
+  <group ns="$(arg camera_name)_$(arg camera_type)_0" >
+    <!-- nodelet manager -->
+    <!-- <node pkg="nodelet" type="nodelet" name="compile_nodelet_cam0" -->
+    <node pkg="nodelet" type="nodelet" name="compile_nodelet_imu"
+	    args="load versavis/VersaVISSynchronizerNodelet /$(arg camera_manager)"
+          output="screen"
+          required="true">
+      <!-- <param name="driver_topic" type="string" value="/$(arg camera_name)_$(arg camera_type)_1/image_numbered" /> -->
+      <!-- <param name="driver_topic" type="string" value="/hikrobot_camera/img_numbered"/> -->
+      <param name="imu_driver_topic" type="string" value="/xsens/imu_numbered"/>
+      <!-- <param name="driver_topic" type="string" value="/pylon_camera_node/image_raw"/> -->
+      <param name="versavis_topic" type="string" value="/versavis/xsens_imu/"/>
+      <param name="imu_offset_us" type="int" value="0"/>
+
+      <!-- OPTIONAL SETTINGS -->
+      <param name="publish_slow_images" type="bool" value="false"/>
+      <param name="publish_every_n_image" type="int" value="200"/><!-- only be used when publish_slow_images = true -->
+      <param name="camera_info_topic" type="string" value=""/>
+    </node>
+  </group>
+
+  <!-- cam1-HIKrobot camara -->
+  <group ns="$(arg camera_name)_$(arg camera_type)_1" >
+    <!-- nodelet manager -->
+    <node pkg="nodelet" type="nodelet" name="compile_nodelet_cam1"
+	    args="load versavis/VersaVISSynchronizerNodelet /$(arg camera_manager)"
+          output="screen"
+          required="true">
+      <!-- <param name="driver_topic" type="string" value="/$(arg camera_name)_$(arg camera_type)_1/image_numbered" /> -->
+      <param name="driver_topic" type="string" value="/hikrobot_camera/img_numbered"/>
+      <!-- <param name="driver_topic" type="string" value="/pylon_camera_node/image_raw"/> -->
+      <param name="versavis_topic" type="string" value="/versavis/cam1/"/>
+      <param name="imu_offset_us" type="int" value="0"/>
+
+      <!-- OPTIONAL SETTINGS -->
+      <param name="publish_slow_images" type="bool" value="false"/>
+      <param name="publish_every_n_image" type="int" value="10"/>
+      <param name="camera_info_topic" type="string" value=""/>
+    </node>
+  </group>
+
+  <!-- cam2-Basler camara -->
+  <group ns="$(arg camera_name)_$(arg camera_type)_2" >
+    <!-- nodelet manager -->
+    <node pkg="nodelet" type="nodelet" name="compile_nodelet_cam2"
+	    args="load versavis/VersaVISSynchronizerNodelet /$(arg camera_manager)"
+          output="screen"
+          required="true">
+      <!-- <param name="driver_topic" type="string" value="/$(arg camera_name)_$(arg camera_type)_2/image_numbered" /> -->
+      <!-- <param name="driver_topic" type="string" value="/hikrobot_camera/img_raw"/> -->
+      <param name="driver_topic" type="string" value="/basler_camera_node/img_numbered"/>
+      <param name="versavis_topic" type="string" value="/versavis/cam2/"/>
+      <!-- <param name="imu_offset_us" type="int" value="0"/> -->
+      <!-- one frame skip 2022.5.9-->
+      <param name="imu_offset_us" type="int" value="0"/> 
+      <!-- OPTIONAL SETTINGS -->
+      <param name="publish_slow_images" type="bool" value="false"/>
+      <param name="publish_every_n_image" type="int" value="10"/>
+      <param name="camera_info_topic" type="string" value=""/>
+    </node>
+  </group>
+
+  <!-- Run RealVIS link. -->
+  <node name="rosserial_python" pkg="rosserial_python" type="serial_node.py"
+    args="_port:=/dev/versavis _baud:=250000" respawn="true" output="screen" />
+
+</launch>
+

@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+
+<launch>
+  <arg name="camera_manager"          default="pylon_camera" />
+
+  <node pkg="nodelet" type="nodelet" name="$(arg camera_manager)"
+        args="manager"
+        output="screen"
+        required="true" >
+      <param name="num_worker_threads" value="4" />
+  </node>
+
+    <arg name="respawn" default="false" />
+    <arg name="debug" default="false" />
+    <arg name="node_name" default="pylon_camera_node" />
+    <arg name="mtu_size" default="3000" />
+    <arg name="startup_user_set" default="UserSet1" />
+    <arg name="enable_status_publisher" default="true" />
+    <arg name="enable_current_params_publisher" default="true" />
+    <arg name="image_encoding" default="mono8" />
+    
+    <arg name="config_path" default="$(find pylon_camera)/config/baslerac1920.yaml" />
+
+  <!-- <group ns="$(arg camera_manager)" > -->
+    <!-- nodelet manager -->
+    <!-- camera driver nodelet -->
+    <node pkg="nodelet" type="nodelet" name="$(arg node_name)" args="load pylon_camera_ns/Nodelet /$(arg camera_manager)">
+          <rosparam command="load" file="$(arg config_path)" />
+        <!-- <param name="config_file" type="string" value="$(arg config_path)" /> -->
+        <param name="gige/mtu_size" value="$(arg mtu_size)"/>
+        <param name="image_encoding" value="$(arg image_encoding)"/>
+        <param name="startup_user_set" value="$(arg startup_user_set)"/>
+        <param name="enable_status_publisher" value="$(arg enable_status_publisher)"/>
+        <param name="enable_current_params_publisher" value="$(arg enable_current_params_publisher)"/>
+    </node>
+  <!-- </group> -->
+
+</launch>

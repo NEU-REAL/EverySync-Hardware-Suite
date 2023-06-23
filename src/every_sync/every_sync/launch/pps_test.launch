@@ -1,0 +1,39 @@
+<launch>
+    <!-- <include file="$(find xsens_driver)/launch/xsens_driver.launch" /> -->
+
+
+    <!-- Run VersaVIS link. -->
+    <node name="rosserial_python" pkg="rosserial_python" type="serial_node.py"
+      args="_port:=/dev/versavis _baud:=250000" respawn="true" output="screen" />
+
+  <!-- camera name prefix -->
+  <arg name="camera_name"             default="REAL" />
+  <arg name="camera_type"             default="usb" />
+  <!-- camera manager -->
+  <arg name="camera_manager"          default="$(arg camera_name)_camera_manager" />
+
+  
+  <!-- camera nodelet system -->
+
+    <node pkg="nodelet" type="nodelet" name="$(arg camera_manager)"
+          args="manager"
+          output="screen"
+          required="true" >
+       <param name="num_worker_threads" value="4" />
+    </node>
+
+  <!-- ext_clk test -->
+  <group ns="$(arg camera_name)_$(arg camera_type)_0" >
+    <!-- nodelet manager -->
+    <!-- <node pkg="nodelet" type="nodelet" name="compile_nodelet_cam0" -->
+    <node pkg="nodelet" type="nodelet" name="compile_nodelet_ext_clk"
+	    args="load versavis/VersaVISSynchronizerNodelet /$(arg camera_manager)"
+          output="screen"
+          required="true">
+      <param name="ext_clk_sub_topic" type="string" value="/realvis/gnss/external_time"/>
+      <param name="ext_clk_pub_topic" type="string" value="/external_trigger"/>
+
+    </node>
+  </group>
+
+</launch>

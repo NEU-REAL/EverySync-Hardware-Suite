@@ -1,0 +1,106 @@
+<launch>
+  <!-- BASIC DRIVER FOR SENSORS (REALVIS-TRIGGER-BOARD) -->
+    <!-- basler camera -->
+    <arg name="respawn" default="false" />
+    <arg name="debug" default="false" />
+    <arg name="node_name" default="pylon_camera_node" />
+    <arg name="mtu_size" default="3000" />
+    <arg name="startup_user_set" default="UserSet1" />
+    <arg name="enable_status_publisher" default="true" />
+    <arg name="enable_current_params_publisher" default="true" />
+    <arg name="config_file" default="$(find pylon_camera)/config/baslerac1920.yaml" />
+    <!-- xsens imu -->
+  <arg name="model" default="$(find xsens_mti_driver)/urdf/MTi_6xx.urdf"/>
+  <arg name="rvizconfig" default="$(find xsens_mti_driver)/rviz/display.rviz" />
+  
+  <!-- <include file="$(find hikrobot_camera)/launch/hikrobot_camera.launch" /> -->
+
+  <param name="robot_description" command="$(find xacro)/xacro --inorder $(arg model)" />
+  <node name="realvis_rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
+
+    <!-- Run EverySync link. -->
+  <node name="rosserial_python" pkg="rosserial_python" type="serial_node.py"
+    args="_port:=/dev/versavis _baud:=250000" respawn="true" output="screen" />
+  <!-- ********************************************************************************** -->
+
+  <!-- camera name prefix -->
+  <arg name="camera_name"             default="REAL" />
+  <arg name="camera_type"             default="usb" />
+  <!-- camera manager -->
+  <arg name="camera_manager"          default="pylon_camera_manager" />
+  
+  <!-- camera nodelet system -->
+
+    <node pkg="nodelet" type="nodelet" name="$(arg camera_manager)"
+          args="manager"
+          output="screen"
+          required="true" >
+       <param name="num_worker_threads" value="4" />
+    </node>
+
+  <!-- cam0-xsens mti-630 imu -->
+    <!-- nodelet manager -->
+
+
+    <include file="$(find xsens_mti_driver)/launch/xsens_mti670_node.launch" />
+    
+  <group ns="$(arg camera_name)_$(arg camera_type)_0" >
+    <node pkg="nodelet" type="nodelet" name="compile_nodelet_imu"
+	    args="load versavis/VersaVISSynchronizerNodelet /$(arg camera_manager)"
+          output="screen"
+          required="true">
+      <!-- <param name="driver_topic" type="string" value="/$(arg camera_name)_$(arg camera_type)_1/image_numbered" /> -->
+      <!-- <param name="driver_topic" type="string" value="/hikrobot_camera/img_numbered"/> -->
+      <param name="imu_driver_topic" type="string" value="/imu/imu_numbered"/>
+      <!-- <param name="driver_topic" type="string" value="/pylon_camera_node/image_raw"/> -->
+      <param name="versavis_topic" type="string" value="/realvis/imu/"/>
+      <param name="imu_offset_us" type="int" value="0"/>
+
+      <!-- OPTIONAL SETTINGS -->
+      <param name="publish_slow_images" type="bool" value="false"/>
+      <param name="publish_every_n_image" type="int" value="200"/><!-- only be used when publish_slow_images = true -->
+      <param name="camera_info_topic" type="string" value=""/>
+    </node>
+  </group>
+
+  <!-- cam1-HIKrobot camara -->
+
+  <!-- cam1-Basler camara -->
+
+    <!-- nodelet manager -->
+  <group ns="$(arg camera_name)_$(arg camera_type)_1" >
+    <node pkg="nodelet" type="nodelet" name="pylon_camera_ns" 
+      args="load pylon_camera_ns/Nodelet /$(arg camera_manager)"
+      output="screen"
+      required="true">
+      <!-- <param name="camera_frame" type="string" value="pylon_camera"/>
+      <param name="image_encoding" type="string" value="rgb8"/>
+      <param name="frame_rate" type="double" value="10.0"/>
+      <param name="exposure" type="double" value="25000.0"/>
+      <param name="trigger_timeout" type="int" value="20000"/>
+      <param name="grab_timeout" type="int" value="10000"/>
+      <param name="grab_strategy" type="int" value="1"/> -->
+      <rosparam command="load" file="$(arg config_file)" />
+    </node>
+    <node pkg="nodelet" type="nodelet" name="compile_nodelet_cam1"
+	    args="load versavis/VersaVISSynchronizerNodelet /$(arg camera_manager)"
+          output="screen"
+          required="true">
+      <!-- <param name="driver_topic" type="string" value="/$(arg camera_name)_$(arg camera_type)_2/image_numbered" /> -->
+      <!-- <param name="driver_topic" type="string" value="/hikrobot_camera/img_raw"/> -->
+      <param name="driver_topic" type="string" value="/pylon_camera_numbered/image_numbered"/>
+      <param name="versavis_topic" type="string" value="/realvis/cam1/"/>
+      <!-- <param name="imu_offset_us" type="int" value="0"/> -->
+      <!-- one frame skip 2022.5.9-->
+      <param name="imu_offset_us" type="int" value="0"/> 
+      <param name="exposure_time" type="int" value="25000"/>
+      <!-- OPTIONAL SETTINGS -->
+      <param name="publish_slow_images" type="bool" value="false"/>
+      <param name="publish_every_n_image" type="int" value="10"/>
+      <param name="camera_info_topic" type="string" value=""/>
+    </node>
+  </group>
+
+
+</launch>
+

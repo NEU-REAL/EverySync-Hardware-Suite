@@ -1,0 +1,35 @@
+# true 1 和 false 0 
+# width: 752             #图像宽度
+# height: 480            #图像高度
+# Offset_x: 584             #X方向偏置
+# Offset_y: 360             #Y方向偏置
+
+width: 1080             #图像宽度
+height: 720            #图像高度
+Offset_x: 420             #X方向偏置
+Offset_y: 240             #Y方向偏置
+
+# width: 1920             #图像宽度
+# height: 1200            #图像高度
+# Offset_x: 0             #X方向偏置
+# Offset_y: 0             #Y方向偏置
+
+FrameRateEnable: true   #使能 
+FrameRate: 30           #帧率
+
+ExposureTime: 19000     #曝光时间
+
+GammaEnable: true
+Gamma: 0.7              #伽马因子
+
+GainAuto: 2             #亮度的固定增益
+
+SaturationEnable: false
+Saturation: 128          #饱和度
+
+TriggerMode: 0
+TriggerSource: 0    #线路0
+LineSelector: 1     #线路1
+LineMode: 8         #频闪输出
+LineSource: 0       #曝光开始输出
+StrobeEnable: 1     #输出使能
