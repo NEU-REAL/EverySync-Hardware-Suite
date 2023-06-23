@@ -1,5 +1,0 @@
-*link:
---entry ResetISR --gc-sections
-
-*lib:
--lgcc -lc -lm -lnosys

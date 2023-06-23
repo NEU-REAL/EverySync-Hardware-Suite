@@ -1,3 +1,0 @@
-<launch>
-  <node pkg="rosserial_server" type="socket_node" name="rosserial_server" />
-</launch>

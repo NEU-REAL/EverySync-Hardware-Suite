@@ -1,7 +1,0 @@
-string name
-
----
-
-int32[]   ints
-float32[] floats
-string[]  strings
