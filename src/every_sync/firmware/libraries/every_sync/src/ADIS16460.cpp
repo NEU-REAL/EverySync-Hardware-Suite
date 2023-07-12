@@ -35,7 +35,7 @@
 
 #include "ADIS16460.h"
 #include "helper.h"
-#include "versavis_configuration.h"
+#include "every_sync_configuration.h"
 
 ////////////////////////////////////////////////////////////////////////////
 // Constructor with configurable CS, DR, and RST

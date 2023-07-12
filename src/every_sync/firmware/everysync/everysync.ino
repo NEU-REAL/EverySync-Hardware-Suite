@@ -1,5 +1,5 @@
 // Import all settings for the chosen sensor configuration.
-#include "versavis_configuration.h"
+#include "every_sync_configuration.h"
 
 #include <math.h>
 #include <ros.h>

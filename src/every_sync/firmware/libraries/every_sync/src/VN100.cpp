@@ -32,7 +32,7 @@
 
 #include "VN100.h"
 #include "helper.h"
-#include "versavis_configuration.h"
+#include "every_sync_configuration.h"
 
 VN100::VN100(ros::NodeHandle *nh, const String &topic, const int rate_hz,
              Timer &timer)

@@ -2,7 +2,7 @@
 #define helper_h
 
 #include "Arduino.h"
-#include "versavis_configuration.h"
+#include "every_sync_configuration.h"
 
 #ifdef DEBUG
 #define DEBUG_INIT(x) SerialUSB.begin(x)

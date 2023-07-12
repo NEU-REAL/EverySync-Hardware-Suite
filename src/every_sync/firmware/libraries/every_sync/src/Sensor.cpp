@@ -1,7 +1,7 @@
 #include "Arduino.h"
 #include "Sensor.h"
 #include "helper.h"
-#include "versavis_configuration.h"
+#include "every_sync_configuration.h"
 
 // Image time message version.
 Sensor::Sensor(ros::NodeHandle *nh, const String &topic, const int rate_hz,

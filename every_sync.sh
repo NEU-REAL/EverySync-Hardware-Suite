@@ -1,5 +1,5 @@
 setserial /dev/ttyUSB0 low_latency;
-setserial /dev/ttyUSB1 low_latency;
+# setserial /dev/ttyUSB1 low_latency;
 
 source devel/setup.bash;
 

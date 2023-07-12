@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "GNSS.h"
 #include "helper.h"
-#include "versavis_configuration.h"
+#include "every_sync_configuration.h"
 #include "string.h"
 
 GNSS::GNSS(ros::NodeHandle *nh, const String &topic, const int rate_hz,

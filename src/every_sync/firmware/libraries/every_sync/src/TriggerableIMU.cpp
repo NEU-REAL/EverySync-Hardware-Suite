@@ -1,8 +1,8 @@
 ////////////////////////////////////////////////////////////////////////////////
-//  April 2023
+//  May 2023
 //  Author: Kangkang <1035309950@qq.com>
 ////////////////////////////////////////////////////////////////////////////////
-//  Lidar.cpp
+//  TriggerableIMU.cpp
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  This library provides functions regarding cameras in the versavis
@@ -11,27 +11,20 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Lidar.h"
+#include "TriggerableIMU.h"
 #include "helper.h"
-#include "versavis_configuration.h"
-#include "GNSS.h"
+#include "every_sync_configuration.h"
 
-#include <ros/time.h>
-#include <tf/transform_broadcaster.h>
-extern geometry_msgs::TransformStamped t;
-extern tf::TransformBroadcaster broadcaster;
-extern utctime UTC;
-
-Lidar::Lidar(ros::NodeHandle *nh, const String &topic, const int rate_hz,
+TriggerableIMU::TriggerableIMU(ros::NodeHandle *nh, const String &topic, const int rate_hz,
                Timer &timer, const trigger_type &type,
                const uint8_t trigger_pin /*= 0 */,
                const uint8_t exposure_pin /*= 0 */,
                const bool exposure_compensation /*= true*/)
-    : Sensor(nh, topic, rate_hz, timer, pps_time_msg_, type),
+    : Sensor(nh, topic, rate_hz, timer, imu_time_msg_, type),
       trigger_pin_(trigger_pin), exposure_pin_(exposure_pin),
       exposure_compensation_(exposure_compensation), is_configured_(true),
-      compensating_(false), exposing_(false), pps_number_(0),
-      init_subscriber_((topic + "init").c_str(), &Lidar::initCallback, this),
+      compensating_(false), exposing_(false), imu_number_(0),
+      init_subscriber_((topic + "init").c_str(), &TriggerableIMU::initCallback, this),
       initialized_(false) {
   // Check the input.
   if (trigger_pin == 0) {
@@ -43,39 +36,16 @@ Lidar::Lidar(ros::NodeHandle *nh, const String &topic, const int rate_hz,
   Sensor::newMeasurementIsNotAvailable();
 }
 
-//GPRMC格式样例 
-// $GPRMC,222120.3456,A,2237.496474,N,11356.089515,E,0.0,225.5,010523,2.3,W,A*23
-//    0      1        2      3      4       5      6  7     8     9   10 11 12 *13
-// field 0：$GPRMC, 格式ID，表示该格式为建议的最低特定GPS / TRANSIT数据（RMC）推荐最低定位信息
-// field 1: UTC时间, 格式hhmmss.ssss，代表时分秒.毫秒
-// field 2: 状态 A:代表定位成功 V:代表定位失败 
-// field 3: 纬度 ddmm.mmmmmm 度格式（如果前导位数不足，则用0填充）
-// field 4: 纬度 N(北纬)  S(南纬)
-// field 5: 经度 dddmm.mmmmmm 度格式（如果前导位数不足，则用0填充）
-// field 6: 经度 E(东经) W(西经)
-// field 7: 速度（也为1.852 km / h）
-// field 8: 方位角，度（二维方向，等效于二维罗盘）
-// field 9: UTC日期 DDMMYY 天月年
-// field 10: 磁偏角（000-180）度，如果前导位数不足，则用0填充）
-// field 11: 磁偏角方向E =东W =西
-// field 12: 模式，A =自动，D =差分，E =估计，AND =无效数据（3.0协议内容）
-// field 13: 校验和
-
-void Lidar::setup() {
-  // Start Serial1 for IMU communication
-  Serial1.begin(9600, SERIAL_8N1);
-  // delay(20);
-  // Serial.setTimeout(2);
-  
+void TriggerableIMU::setup() {
   if (topic_.length() == 0) {
-    // Lidar without a topic are considered as disconnected.
+    // Cameras without a topic are considered as disconnected.
     DEBUG_PRINTLN(
-        F("NO_TOPIC (Lidar.cpp): Skip Lidar setup for disconnected Lidar."));
+        F("NO_TOPIC (Camera.cpp): Skip camera setup for disconnected camera."));
     is_configured_ = false;
     initialized_ = true;
     return;
   }
-  DEBUG_PRINTLN((topic_ + " (Lidar.cpp): Setup.").c_str());
+  DEBUG_PRINTLN((topic_ + " (Camera.cpp): Setup.").c_str());
 
   setupInitSubscriber();
   setupPublisher();
@@ -85,173 +55,63 @@ void Lidar::setup() {
   pinMode(exposure_pin_, INPUT);
 }
 
-void Lidar::initialize() {
+void TriggerableIMU::initialize() {
   if (!is_configured_ || initialized_) {
     return;
   }
-  DEBUG_PRINTLN((topic_ + " (Lidar.cpp): Initialize.").c_str());
-  // Sensor::trigger(trigger_pin_, TRIGGER_PULSE_US * 10, type_);
+  DEBUG_PRINTLN((topic_ + " (Camera.cpp): Initialize.").c_str());
+  Sensor::trigger(trigger_pin_, TRIGGER_PULSE_US * 10, type_);
   Sensor::setTimestampNow();
-  // ++pps_number_;
-  pps_time_msg_.number = pps_number_;
+  ++imu_number_;
+  imu_time_msg_.number = imu_number_;
   Sensor::newMeasurementIsAvailable();
   publish();
 #ifdef DEBUG
   initialized_ = true;
 #endif
-  initialized_ = true;//强制初始化
+  // initialized_ = true;//强制初始化
 }
 
-void Lidar::begin() {
+void TriggerableIMU::begin() {
   if (!is_configured_) {
     return;
   }
-  DEBUG_PRINTLN((topic_ + " (Lidar.cpp): Begin.").c_str());
+  DEBUG_PRINTLN((topic_ + " (Camera.cpp): Begin.").c_str());
   // Maximal exposure time to still be able to keep up with the frequency
   // considering a security factor of 0.99, in us.
   max_exposure_time_us_ = 0.99 * 1e6 / rate_hz_;
 
-  // Setup timer to periodically trigger the Lidar.
+  // Setup timer to periodically trigger the camera.
   Sensor::setupTimer();
 }
 
-void Lidar::setupPublisher() {
-  pub_topic_ = topic_ + "pps_time";
-  publisher_ = ros::Publisher(pub_topic_.c_str(), &pps_time_msg_);
-  DEBUG_PRINT((topic_ + " (Lidar.cpp): Setup publisher with topic ").c_str());
+void TriggerableIMU::setupPublisher() {
+  pub_topic_ = topic_ + "imu_time";
+  publisher_ = ros::Publisher(pub_topic_.c_str(), &imu_time_msg_);
+  DEBUG_PRINT((topic_ + " (Camera.cpp): Setup publisher with topic ").c_str());
   DEBUG_PRINTLN(publisher_.topic_);
 #ifndef DEBUG
   nh_->advertise(publisher_);
 #endif
 }
 
-void Lidar::setupInitSubscriber() {
+void TriggerableIMU::setupInitSubscriber() {
   init_sub_topic_ = topic_ + "init";
-  init_subscriber_ = ros::Subscriber<std_msgs::Bool, Lidar>(
-      init_sub_topic_.c_str(), &Lidar::initCallback, this);
+  init_subscriber_ = ros::Subscriber<std_msgs::Bool, TriggerableIMU>(
+      init_sub_topic_.c_str(), &TriggerableIMU::initCallback, this);
   DEBUG_PRINT(
-      (topic_ + " (Lidar.cpp): Setup init subscriber with topic ").c_str());
+      (topic_ + " (Camera.cpp): Setup init subscriber with topic ").c_str());
   DEBUG_PRINTLN(init_subscriber_.topic_);
 #ifndef DEBUG
   nh_->subscribe(init_subscriber_);
 #endif
 }
 
-void Lidar::initCallback(const std_msgs::Bool &msg) {
+void TriggerableIMU::initCallback(const std_msgs::Bool &msg) {
   initialized_ = msg.data;
 }
 
-bool pps_trig_ = false;
-bool pps_count_trig_ = false;
-int pps_count_ = 0;
-// 100hz generate pulse 1Hz 50ms High level
-void Lidar::pps_send_utc_time_from_100hz() {
-  // ros::Time pps_time_on_ros = getTimestamp();
-
-  // Check whether an overflow caused the interrupt.
-  if (!timer_.checkOverflow()) {
-    DEBUG_PRINTLN(
-        (topic_ + " (Lidar.cpp): Timer interrupt but not overflown.").c_str());
-    return;
-  }
-
-  if (!is_configured_ || !initialized_) {
-    return;
-  }
-
-  DEBUG_PRINTLN((topic_ + " (Lidar.cpp): Timer overflow.").c_str());
-
-  // change Lidar class into lidar usage.
-  // "Standard" mode where the Lidar is triggered purely periodic.
-  if ((pps_number_ % 100) == 0)
-  {
-    pps_trig_ = true;
-    pps_count_trig_ = true; 
-  }
-  if (pps_count_trig_ == true)
-  {
-    ++pps_count_ ;
-  }
-
-  if (pps_trig_ == true)//start trig
-  {
-    Sensor::setTimestampNow();
-    Sensor::newMeasurementIsAvailable();
-    // This part transform ros::time to UTC time.
-    ros::Time pps_time_from_ros = getTimestamp();
-    String GPMRC_CMD = build_GPRMC_CMD(pps_time_from_ros);
-    // Trigger the PPS pulse.
-    // Sensor::trigger(trigger_pin_, TRIGGER_PULSE_PPS, type_);
-    digitalWrite(LIDAR_TRIGGER_PIN, HIGH);
-    // Send NMEA cmd for lidar sync
-    Serial1.println(GPMRC_CMD);
-    // Serial1.println("$GPRMC,114345.130669,A,3606.6834,N,12021.7778,E,0.0,238.3,080523,,,A*50");
-
-    pps_trig_ = false;
-  }
-
-  if (pps_count_ == 5 )//end trig
-  {
-    digitalWrite(LIDAR_TRIGGER_PIN, LOW);
-    pps_count_ = 0 ;
-    pps_count_trig_ = false ; 
-  }
-    // Increament the image number as the camera is triggered now.
-    pps_number_++;
-
-    // Set the timer to make sure that the camera is triggered in a periodic
-    // mode.
-    timer_.setCompare(compare_);
-
-  // Reset the timer.
-  timer_.resetOverflow();
-}
-
-
-void Lidar::pps_send_utc_time() {
-  // ros::Time pps_time_on_ros = getTimestamp();
-
-  // Check whether an overflow caused the interrupt.
-  if (!timer_.checkOverflow()) {
-    DEBUG_PRINTLN(
-        (topic_ + " (Lidar.cpp): Timer interrupt but not overflown.").c_str());
-    return;
-  }
-
-  if (!is_configured_ || !initialized_) {
-    return;
-  }
-
-  DEBUG_PRINTLN((topic_ + " (Lidar.cpp): Timer overflow.").c_str());
-
-    // change Lidar class into lidar usage.
-    // "Standard" mode where the Lidar is triggered purely periodic.
-
-    Sensor::setTimestampNow();
-    Sensor::newMeasurementIsAvailable();
-
-    // This part transform ros::time to UTC time.
-    ros::Time pps_time_from_ros = getTimestamp();
-    String GPMRC_CMD = build_GPRMC_CMD(pps_time_from_ros);
-
-    // Trigger the PPS pulse.
-    Sensor::trigger(trigger_pin_, TRIGGER_PULSE_PPS, type_);
-    // Send NMEA cmd for lidar sync
-    Serial1.println(GPMRC_CMD);
-    // Serial1.println("GPRMC,010101.130,A,3606.6834,N,12021.7778,E,0.0,238.3,010807,,,A*6C");
-
-    // Increament the image number as the camera is triggered now.
-    pps_number_++;
-
-    // Set the timer to make sure that the camera is triggered in a periodic
-    // mode.
-    timer_.setCompare(compare_);
-
-  // Reset the timer.
-  timer_.resetOverflow();
-}
-
-void Lidar::triggerMeasurement() {
+void TriggerableIMU::triggerMeasurement() {
   // Check whether an overflow caused the interrupt.
   if (!timer_.checkOverflow()) {
     DEBUG_PRINTLN(
@@ -284,7 +144,7 @@ void Lidar::triggerMeasurement() {
       exposure_start_us_ = micros();
 
       // Increament the image number as the camera is triggered now.
-      ++pps_number_;
+      ++imu_number_;
 
       // Set the timer to the mid exposure point, e.g. half the exposure time.
       timer_.setCompare(exposure_delay_ticks_ > 0 ? exposure_delay_ticks_ - 1
@@ -331,7 +191,7 @@ void Lidar::triggerMeasurement() {
     exposure_start_us_ = micros();
 
     // Increament the image number as the camera is triggered now.
-    pps_number_++;
+    imu_number_++;
 
     // Set the timer to make sure that the camera is triggered in a periodic
     // mode.
@@ -341,7 +201,7 @@ void Lidar::triggerMeasurement() {
   timer_.resetOverflow();
 }
 
-void Lidar::exposureEnd() {
+void TriggerableIMU::exposureEnd() {
   DEBUG_PRINTLN((topic_ + " (Camera.cpp): Exposure end.").c_str());
   if (exposure_compensation_) {
     unsigned long last_exposure_time_us = micros() - exposure_start_us_;
@@ -352,19 +212,19 @@ void Lidar::exposureEnd() {
   }
 }
 
-void Lidar::publish() {
+void TriggerableIMU::publish() {
   if (Sensor::isNewMeasurementAvailable()) {
     DEBUG_PRINTLN((topic_ + " (Camera.cpp): Publish.").c_str());
-    pps_time_msg_.time = Sensor::getTimestamp();
-    pps_time_msg_.number = pps_number_;
+    imu_time_msg_.time = Sensor::getTimestamp();
+    imu_time_msg_.number = imu_number_;
 #ifndef DEBUG
-    publisher_.publish(&pps_time_msg_);
+    publisher_.publish(&imu_time_msg_);
 #endif
     Sensor::newMeasurementIsNotAvailable();
   }
 }
 
-void Lidar::calculateDelayTicksAndCompensate(
+void TriggerableIMU::calculateDelayTicksAndCompensate(
     const unsigned long &last_exposure_time_us) {
   // The goal here is to shift the time of the next camera trigger half the
   // exposure time before the mid-exposure time.

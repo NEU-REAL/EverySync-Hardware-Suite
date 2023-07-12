@@ -1,14 +1,14 @@
 ////////////////////////////////////////////////////////////////////////////////
 //  July 2015
 //  Author: Juan Jose Chong <juan.chong@analog.com>
-//  Updated by Inkyu Sa <enddl22@gmail.com> for ADIS16448AMLZ
+//  Updated by Inkyu Sa <enddl22@gmail.com> for ADIS16448BMLZ
 //  Adapted by Florian Tschopp <ftschopp@ethz.ch> for use in versavis
 ////////////////////////////////////////////////////////////////////////////////
-//  ADIS16448AMLZ.cpp
+//  ADIS16448BMLZ.cpp
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  This library provides all the functions necessary to interface the
-//  ADIS16448AMLZ IMU with an 8-Bit Atmel-based Arduino development board.
+//  ADIS16448BMLZ IMU with an 8-Bit Atmel-based Arduino development board.
 //  Functions for SPI configuration, reads and writes, and scaling are included.
 //  This library may be used for the entire ADIS164XX family of devices with
 //  some modification.
@@ -27,9 +27,9 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ADIS16448AMLZ.h"
+#include "ADIS16448BMLZ.h"
 #include "helper.h"
-#include "versavis_configuration.h"
+#include "every_sync_configuration.h"
 
 ////////////////////////////////////////////////////////////////////////////
 // Constructor with configurable CS, DR, RST
@@ -38,7 +38,7 @@
 // DR - DR output pin for data ready
 // RST - Hardware reset pin
 ////////////////////////////////////////////////////////////////////////////
-ADIS16448AMLZ::ADIS16448AMLZ(ros::NodeHandle *nh, const String &topic,
+ADIS16448BMLZ::ADIS16448BMLZ(ros::NodeHandle *nh, const String &topic,
                              const int rate_hz, Timer &timer, int CS, int DR,
                              int RST)
     : Imu(nh, topic, rate_hz, timer), CS_(CS), RST_(RST) {
@@ -52,9 +52,8 @@ ADIS16448AMLZ::ADIS16448AMLZ(ros::NodeHandle *nh, const String &topic,
   }
 }
 
-void ADIS16448AMLZ::setup() {
-  DEBUG_PRINTLN((topic_ + " (ADIS16448AMLZ.cpp): Setup.").c_str());
-
+void ADIS16448BMLZ::setup() {
+  DEBUG_PRINTLN((topic_ + " (ADIS16448BMLZ.cpp): Setup.").c_str());
   SPI.begin(); // Initialize SPI bus
   configSPI(); // Configure SPI
 
@@ -71,25 +70,55 @@ void ADIS16448AMLZ::setup() {
   digitalWrite(CS_, HIGH); // Initialize CS pin to be high
 
   /* ---------------- Perform IMU configuration  --------------------------- */
+  //===========================================================================
+  //          MSC_CTRL (16bits Default=0x0006, B0000 0000 0000 0110)
+  // Bits    : Description
+  // 15-12   : Not used
+  // 11      : Checksum mem test(0/1=off/on)
+  // 10      : Internal self test, (cleared (low) upon completion)
+  // 9-8     : Do not use
+  // 7       : Not used
+  // 6       : Point of percussion (0/1=off/on)
+  // 5       : Not used
+  // 4       : CRC-16 code for burst mode (0/1=off/on)
+  // 3       : Not used
+  // 2       : Data ready enable (0/1=off/on)
+  // 1       : Data ready polarity (0/1=active low/high when data is valid_
+  // 0       : Data ready line select (0=DIO1, 1=DIO2)
+  //===========================================================================
 
-  // See also configuration of ADIS16448BMLZ.
-  // Enable CRC doesn't work for USE_ADIS16448AMLZ. The last 16 bits filled with
-  // zeros. Disable data ready. Disable CRC (CRC is only valid for 16448BMLZ nor
+  // Disable data ready. Enable CRC (CRC is only valid for 16448BMLZ not for
   // AMLZ..)
-  int16_t kMscCtrlRegister = 0x0000; // B0000 0000 0001 0000
+  int16_t kMscCtrlRegister = 0x0010; // B0000 0000 0001 0000
+
   regWrite(MSC_CTRL, kMscCtrlRegister);
   delay(20);
 
-  // See above same as ADIS16448BMLZ,
+  //===========================================================================
+  //          SENS_AVG (16bits, default= 0x0402, B0000 0100 0000 0010)
+  // Bits    : Description
+  // 15-11   : Not-used
+  // 10-8    : Measurement range selection,
+  //          100=±1000°/sec default) 010=±500°/sec 001=±250°/sec
+  // 7-3     : Not used
+  // 2-0     : Filter Size variable B, Number of taps in each stage; N_B=2^B
+  //===========================================================================
   // 0x0100: ±250°/sec, note that the lower dynamic range settings limit the
   // minimum filter tap sizes to maintain resolution.
-  int16_t kSensAvgRegister = 0x0400; // B0000 0100 0000 0000;
+
+  int16_t kSensAvgRegister = 0x0404; // B0000 0100 0000 0000;
   regWrite(SENS_AVG, kSensAvgRegister);
   delay(20);
 
-  // See above same as ADIS16448BMLZ,
+  //===========================================================================
+  //          SMPL_PRD (16bits, default=0x0001
+  //      15-13    |         12-8           |        7-1    |        0
+  //      Not-used |  D, decimation rate    | Not used      | Clock, 0= ext,
+  //      1=internal
+  //===========================================================================
   // internal clock,
   int16_t kSmplPrdRegister = 0x0001; // B0000 0000 0000 0001;
+
   regWrite(SMPL_PRD, kSmplPrdRegister);
   delay(20);
 
@@ -99,7 +128,7 @@ void ADIS16448AMLZ::setup() {
 ////////////////////////////////////////////////////////////////////////////
 // Destructor
 ////////////////////////////////////////////////////////////////////////////
-ADIS16448AMLZ::~ADIS16448AMLZ() {
+ADIS16448BMLZ::~ADIS16448BMLZ() {
   // Close SPI bus
   SPI.end();
 }
@@ -107,7 +136,7 @@ ADIS16448AMLZ::~ADIS16448AMLZ() {
 ////////////////////////////////////////////////////////////////////////////
 // Performs a hardware reset by setting RST_ pin low for delay (in ms).
 ////////////////////////////////////////////////////////////////////////////
-int ADIS16448AMLZ::resetDUT(uint8_t ms) {
+int ADIS16448BMLZ::resetDUT(uint8_t ms) {
   if (RST_ == -1) {
     return -1;
   } else {
@@ -124,9 +153,9 @@ int ADIS16448AMLZ::resetDUT(uint8_t ms) {
 // when there are multiple SPI devices using different settings.
 // Returns 1 when complete.
 ////////////////////////////////////////////////////////////////////////////
-int ADIS16448AMLZ::configSPI() {
+int ADIS16448BMLZ::configSPI() {
   SPI.setBitOrder(MSBFIRST);            // Per the datasheet
-  SPI.setClockDivider(SPI_CLOCK_DIV16); // Config for 1MHz (ADIS16448AMLZ max
+  SPI.setClockDivider(SPI_CLOCK_DIV16); // Config for 1MHz (ADIS16448BMLZ max
                                         // 2MHz, burst read max 1MHz)
   SPI.setDataMode(SPI_MODE3); // Clock base at one, sampled on falling edge
   return (1);
@@ -138,7 +167,7 @@ int ADIS16448AMLZ::configSPI() {
 // regAddr - address of register to be read
 // return - (int) signed 16 bit 2's complement number
 ////////////////////////////////////////////////////////////////////////////////////////////
-int16_t ADIS16448AMLZ::regRead(uint8_t regAddr) {
+int16_t ADIS16448BMLZ::regRead(uint8_t regAddr) {
   // Read registers using SPI
 
   // Write register address to be read
@@ -169,15 +198,16 @@ int16_t ADIS16448AMLZ::regRead(uint8_t regAddr) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 // Reads all gyro, accel, magn, baro, and tmp registers in one instance (faster)
-// excluding CRC
+// including
+// CRC-16 Checksum.
 ////////////////////////////////////////////////////////////////////////////////////////////
 // regAddr - address of register to be read
 // return - (pointer) array of signed 16 bit 2's complement numbers
 ////////////////////////////////////////////////////////////////////////////////////////////
-int16_t *ADIS16448AMLZ::sensorReadWoCRC() {
+int16_t *ADIS16448BMLZ::sensorReadAllCRC() {
   // Read registers using SPI
   // Initialize sensor data arrays.
-  uint8_t sensorData[24];
+  uint8_t sensorData[26];
   // Write each requested register address and read back it's data
   digitalWrite(CS_, LOW); // Set CS low to enable communication with the device
   SPI.transfer(GLOB_CMD); // Initial SPI read. Returned data for this transfer
@@ -222,11 +252,15 @@ int16_t *ADIS16448AMLZ::sensorReadWoCRC() {
   // TEMP_OUT
   sensorData[22] = SPI.transfer(0x00);
   sensorData[23] = SPI.transfer(0x00);
+  // CRC-16
+  sensorData[24] =
+      SPI.transfer(0x00); // Final transfer. Data after this invalid
+  sensorData[25] = SPI.transfer(0x00);
 
   digitalWrite(CS_, HIGH); // Disable communication with device.
 
   // Concatenate two bytes into word
-  static int16_t joinedData[12];
+  static int16_t joinedData[13];
   joinedData[0] = (sensorData[0] << 8) | (sensorData[1] & 0xFF);    // DIAG_STAT
   joinedData[1] = (sensorData[2] << 8) | (sensorData[3] & 0xFF);    // XGYRO_OUT
   joinedData[2] = (sensorData[4] << 8) | (sensorData[5] & 0xFF);    // YGYRO_OUT
@@ -239,6 +273,8 @@ int16_t *ADIS16448AMLZ::sensorReadWoCRC() {
   joinedData[9] = (sensorData[18] << 8) | (sensorData[19] & 0xFF);  // ZMAGN_OUT
   joinedData[10] = (sensorData[20] << 8) | (sensorData[21] & 0xFF); // BARO_OUT
   joinedData[11] = (sensorData[22] << 8) | (sensorData[23] & 0xFF); // TEMP_OUT
+  joinedData[12] = (sensorData[24] << 8) | (sensorData[25] & 0xFF); // CRC-16
+
   return (joinedData); // Return pointer with data
 }
 
@@ -249,7 +285,7 @@ int16_t *ADIS16448AMLZ::sensorReadWoCRC() {
 // regAddr - address of register to be written
 // regData - data to be written to the register
 ////////////////////////////////////////////////////////////////////////////
-int ADIS16448AMLZ::regWrite(uint8_t regAddr, int16_t regData) {
+int ADIS16448BMLZ::regWrite(uint8_t regAddr, int16_t regData) {
   // Write register address and data
   uint16_t addr =
       (((regAddr & 0x7F) | 0x80)
@@ -284,6 +320,49 @@ int ADIS16448AMLZ::regWrite(uint8_t regAddr, int16_t regData) {
   return (1);
 }
 
+////////////////////////////////////////////////////////////////////////////
+// Calculates checksum based on burst data.
+// Returns the calculated checksum.
+////////////////////////////////////////////////////////////////////////////
+// *burstArray - array of burst data
+// return - (int16_t) signed calculated checksum
+////////////////////////////////////////////////////////////////////////////
+int16_t ADIS16448BMLZ::checksum(int16_t *burstArray) {
+  unsigned char i;        // Tracks each burstArray word
+  unsigned int data;      // Holds the lower/Upper byte for CRC computation
+  unsigned int crc;       // Holds the CRC value
+  unsigned int lowerByte; // Lower Byte of burstArray word
+  unsigned int upperByte; // Upper Byte of burstArray word
+  unsigned int POLY;      // Divisor used during CRC computation
+  POLY = 0x1021;          // Define divisor
+  crc = 0xFFFF;           // Set CRC to ‐1 prior to beginning CRC computation
+  // Compute CRC on burst data starting from XGYRO_OUT and ending with TEMP_OUT.
+  // Start with the lower byte and then the upper byte of each word.
+  // i.e. Compute XGYRO_OUT_LSB CRC first and then compute XGYRO_OUT_MSB CRC.
+  for (i = 1; i < 12; i++) {
+    upperByte = (burstArray[i] >> 8) & 0xFF;
+    lowerByte = (burstArray[i] & 0xFF);
+    updateCRC(&crc, &lowerByte, POLY);
+    updateCRC(&crc, &upperByte, POLY);
+  }
+  crc = ~crc; // Compute complement of CRC
+  data = crc;
+  crc = (crc << 8) |
+        (data >> 8 & 0xFF); // Perform byte swap prior to returning CRC
+  return crc;
+}
+
+void ADIS16448BMLZ::updateCRC(unsigned int *crc, unsigned int *data,
+                              const unsigned int &POLY) {
+  unsigned char ii; // Counter for each bit of the current burstArray word
+  for (ii = 0; ii < 8; ii++, *data >>= 1) {
+    if ((*crc & 0x0001) ^ (*data & 0x0001))
+      *crc = (*crc >> 1) ^ POLY;
+    else
+      *crc >>= 1;
+  }
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////
 // Converts accelerometer data output from the regRead() function and returns
 // acceleration in g's
@@ -291,7 +370,7 @@ int ADIS16448AMLZ::regWrite(uint8_t regAddr, int16_t regData) {
 // sensorData - data output from regRead()
 // return - (float) signed/scaled accelerometer in g's
 /////////////////////////////////////////////////////////////////////////////////////////
-float ADIS16448AMLZ::accelScale(int16_t sensorData) {
+float ADIS16448BMLZ::accelScale(int16_t sensorData) {
   int signedData = 0;
   int isNeg = sensorData & 0x8000;
   if (isNeg == 0x8000) // If the number is negative, scale and sign the output
@@ -310,7 +389,7 @@ float ADIS16448AMLZ::accelScale(int16_t sensorData) {
 // sensorData - data output from regRead()
 // return - (float) signed/scaled gyro in degrees/sec
 /////////////////////////////////////////////////////////////////////////////////////////
-float ADIS16448AMLZ::gyroScale(int16_t sensorData) {
+float ADIS16448BMLZ::gyroScale(int16_t sensorData) {
   int signedData = 0;
   int isNeg = sensorData & 0x8000;
   if (isNeg == 0x8000) // If the number is negative, scale and sign the output
@@ -330,7 +409,7 @@ float ADIS16448AMLZ::gyroScale(int16_t sensorData) {
 // sensorData - data output from regRead()
 // return - (float) signed/scaled temperature in degrees Celcius
 /////////////////////////////////////////////////////////////////////////////////////////
-float ADIS16448AMLZ::tempScale(int16_t sensorData) {
+float ADIS16448BMLZ::tempScale(int16_t sensorData) {
   int signedData = 0;
   int isNeg = sensorData & 0x8000;
   if (isNeg == 0x8000) // If the number is negative, scale and sign the output
@@ -350,7 +429,7 @@ float ADIS16448AMLZ::tempScale(int16_t sensorData) {
 // sensorData - data output from regRead()
 // return - (float) signed/scaled pressure in mBar
 /////////////////////////////////////////////////////////////////////////////////////////
-float ADIS16448AMLZ::pressureScale(int16_t sensorData) {
+float ADIS16448BMLZ::pressureScale(int16_t sensorData) {
   int signedData = 0;
   int isNeg = sensorData & 0x8000;
   if (isNeg == 0x8000) // If the number is negative, scale and sign the output
@@ -370,7 +449,7 @@ float ADIS16448AMLZ::pressureScale(int16_t sensorData) {
 // sensorData - data output from regRead()
 // return - (float) signed/scaled magnetometer data in mgauss
 /////////////////////////////////////////////////////////////////////////////////////////
-float ADIS16448AMLZ::magnetometerScale(int16_t sensorData) {
+float ADIS16448BMLZ::magnetometerScale(int16_t sensorData) {
   int signedData = 0;
   int isNeg = sensorData & 0x8000;
   if (isNeg == 0x8000) // If the number is negative, scale and sign the output
@@ -386,8 +465,8 @@ float ADIS16448AMLZ::magnetometerScale(int16_t sensorData) {
 // Method to update the sensor data without any validity checks (may result in
 // spikes).
 ///////////////////////////////////////////////////////////////////////////////////////////////
-bool ADIS16448AMLZ::updateData() {
-  sensor_data_ = sensorReadWoCRC();
+bool ADIS16448BMLZ::updateData() {
+  sensor_data_ = sensorReadAllCRC();
   return sensor_data_ != nullptr;
 }
 
@@ -395,23 +474,19 @@ bool ADIS16448AMLZ::updateData() {
 // Method to update the internally stored sensor data recusivelly by checking
 // the validity.
 ///////////////////////////////////////////////////////////////////////////////////////////////
-bool ADIS16448AMLZ::updateDataIterative() {
+bool ADIS16448BMLZ::updateDataIterative() {
   uint64_t tic = micros();
   bool success = false;
   for (size_t depth = 0; depth < kMaxRecursiveUpdateDepth; ++depth) {
     Sensor::setTimestampNow();
-    sensor_data_ = sensorReadWoCRC();
-    // Assuming that 1) temperature changes much slower than IMU sampling rate,
-    // 2) all other measurements are correct if TEMP_OUT is correct. It may be
-    // necessary to filter outliers out by using moving average filter before
-    // publishing IMU topic (i.e., versavis_imu_receiver.cpp)
-    if (sensor_data_ == nullptr || sensor_data_[11] != regRead(TEMP_OUT)) {
+    sensor_data_ = sensorReadAllCRC();
+    if (sensor_data_ == nullptr || sensor_data_[12] != checksum(sensor_data_)) {
       if (micros() - tic > kImuSyncTimeoutUs) {
         return false;
       }
       DEBUG_PRINTLN(
           topic_ +
-          " (ADIS16448AMLZ.cpp): Failed IMU update detected, trying again " +
+          " (ADIS16448BMLZ.cpp): Failed IMU update detected, trying again " +
           (String)(kMaxRecursiveUpdateDepth - depth) + " times.");
     } else {
       return true;

@@ -1,0 +1,6 @@
+<launch>
+  <!-- Run RealVIS link. -->
+  <node name="rosserial_python" pkg="rosserial_python" type="serial_node.py"
+    args="_port:=/dev/versavis _baud:=250000" respawn="true" output="screen" />
+
+</launch>

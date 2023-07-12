@@ -27,7 +27,7 @@
     <!-- nodelet manager -->
     <!-- <node pkg="nodelet" type="nodelet" name="compile_nodelet_cam0" -->
     <node pkg="nodelet" type="nodelet" name="compile_nodelet_ext_clk"
-	    args="load versavis/VersaVISSynchronizerNodelet /$(arg camera_manager)"
+	    args="load every_sync/EverySyncNodelet /$(arg camera_manager)"
           output="screen"
           required="true">
       <param name="ext_clk_sub_topic" type="string" value="/realvis/gnss/external_time"/>

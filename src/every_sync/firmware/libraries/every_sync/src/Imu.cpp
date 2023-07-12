@@ -1,7 +1,7 @@
 #include "Arduino.h"
 #include "Imu.h"
 #include "helper.h"
-#include "versavis_configuration.h"
+#include "every_sync_configuration.h"
 
 Imu::Imu(ros::NodeHandle *nh, const String &topic, const int rate_hz,
          Timer &timer)

@@ -31,7 +31,7 @@ image_encoding: "rgb8"
 #  The desired publisher frame rate if listening to the topics.
 #  This parameter can only be set once at startup
 #  Calling the GrabImages-Action can result in a higher framerate
-frame_rate: 30.0
+frame_rate: 20.0
 
 trigger_timeout: 20000  # in ms
 grab_timeout: 10000  # in ms
@@ -71,7 +71,7 @@ grab_strategy : 1
 
 #  The exposure time in microseconds to be set after opening the camera.
 #exposure: 45000.0
-exposure: 25000.0
+exposure: 45000.0
 
 #  The target gain in percent of the maximal value the camera supports
 #  For USB-Cameras, the gain is in dB, for GigE-Cameras it is given in so

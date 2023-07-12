@@ -1,5 +1,5 @@
-#ifndef versavis_configuration_h
-#define versavis_configuration_h
+#ifndef every_sync_configuration_h
+#define every_sync_configuration_h
 
 /* ----- General configuration -----*/
 // Activate USB serial interface for ARM processor types.
@@ -11,7 +11,7 @@
 // Specify the trigger pulse width;
 #define TRIGGER_PULSE_US 50
 
-#define TRIGGER_PULSE_PPS 1000
+#define TRIGGER_PULSE_PPS 100
 
 /* ----- Camera configuration ----*/
 // // Camera 0
@@ -27,7 +27,7 @@
 // #define CAM1_TOPIC "/versavis/cam1/"
 #define CAM1_TOPIC "/realvis/cam1/"
 // #define CAM1_TOPIC ""
-#define CAM1_RATE 30
+#define CAM1_RATE 20
 #define CAM1_TYPE trigger_type::NON_INVERTED
 // #define CAM1_TRIGGER_PIN 15
 // #define CAM1_EXPOSURE_PIN 6
@@ -56,8 +56,8 @@
 /* ----- LIDAR -----*/
 // Possible values: USE_ADIS16445, USE_ADIS16448AMLZ, USE_ADIS16448BMLZ,
 // USE_ADIS16460 and USE_VN100
-// #define LIDAR_TOPIC "/realvis/lidar/"
-#define LIDAR_TOPIC ""
+#define LIDAR_TOPIC "/realvis/lidar/"
+// #define LIDAR_TOPIC ""
 #define LIDAR_RATE 100
 #define LIDAR_TYPE trigger_type::NON_INVERTED
 #define LIDAR_TRIGGER_PIN 2
@@ -66,8 +66,8 @@
 /* ----- EXTERNAL CLK <-- GNSS MODULE -----*/
 // Possible values: USE_ADIS16445, USE_ADIS16448AMLZ, USE_ADIS16448BMLZ,
 // USE_ADIS16460 and USE_VN100
-// #define EXTCLK_TOPIC "/realvis/gnss/"
-#define EXTCLK_TOPIC ""
+#define EXTCLK_TOPIC "/realvis/gnss/"
+// #define EXTCLK_TOPIC ""
 #define EXTCLK_RATE 1
 #define EXTCLK_TYPE trigger_type::NON_INVERTED
 #define EXTCLK_PPS_PIN 3  //4 NOT USED FOR EXT_INTERRUPT

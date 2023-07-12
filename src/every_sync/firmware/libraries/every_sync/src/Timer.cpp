@@ -1,6 +1,6 @@
 #include "Timer.h"
 #include "helper.h"
-#include "versavis_configuration.h"
+#include "every_sync_configuration.h"
 
 // Constructor for TCC timer type.
 Timer::Timer(Tcc *tcc_timer) : tcc_timer_(tcc_timer), is_tcc_(true) {

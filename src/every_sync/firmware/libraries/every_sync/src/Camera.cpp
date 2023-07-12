@@ -1,8 +1,8 @@
 ////////////////////////////////////////////////////////////////////////////////
-//  May 2023
-//  Author: Kangkang <1035309950@qq.com>
+//  April 2019
+//  Author: Florian Tschopp <ftschopp@ethz.ch>
 ////////////////////////////////////////////////////////////////////////////////
-//  TriggerableIMU.cpp
+//  Camera.cpp
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  This library provides functions regarding cameras in the versavis
@@ -11,20 +11,20 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "TriggerableIMU.h"
+#include "Camera.h"
 #include "helper.h"
-#include "versavis_configuration.h"
+#include "every_sync_configuration.h"
 
-TriggerableIMU::TriggerableIMU(ros::NodeHandle *nh, const String &topic, const int rate_hz,
+Camera::Camera(ros::NodeHandle *nh, const String &topic, const int rate_hz,
                Timer &timer, const trigger_type &type,
                const uint8_t trigger_pin /*= 0 */,
                const uint8_t exposure_pin /*= 0 */,
                const bool exposure_compensation /*= true*/)
-    : Sensor(nh, topic, rate_hz, timer, imu_time_msg_, type),
+    : Sensor(nh, topic, rate_hz, timer, image_time_msg_, type),
       trigger_pin_(trigger_pin), exposure_pin_(exposure_pin),
       exposure_compensation_(exposure_compensation), is_configured_(true),
-      compensating_(false), exposing_(false), imu_number_(0),
-      init_subscriber_((topic + "init").c_str(), &TriggerableIMU::initCallback, this),
+      compensating_(false), exposing_(false), image_number_(0),
+      init_subscriber_((topic + "init").c_str(), &Camera::initCallback, this),
       initialized_(false) {
   // Check the input.
   if (trigger_pin == 0) {
@@ -36,7 +36,7 @@ TriggerableIMU::TriggerableIMU(ros::NodeHandle *nh, const String &topic, const i
   Sensor::newMeasurementIsNotAvailable();
 }
 
-void TriggerableIMU::setup() {
+void Camera::setup() {
   if (topic_.length() == 0) {
     // Cameras without a topic are considered as disconnected.
     DEBUG_PRINTLN(
@@ -55,15 +55,15 @@ void TriggerableIMU::setup() {
   pinMode(exposure_pin_, INPUT);
 }
 
-void TriggerableIMU::initialize() {
+void Camera::initialize() {
   if (!is_configured_ || initialized_) {
     return;
   }
   DEBUG_PRINTLN((topic_ + " (Camera.cpp): Initialize.").c_str());
   Sensor::trigger(trigger_pin_, TRIGGER_PULSE_US * 10, type_);
   Sensor::setTimestampNow();
-  ++imu_number_;
-  imu_time_msg_.number = imu_number_;
+  ++image_number_;
+  image_time_msg_.number = image_number_;
   Sensor::newMeasurementIsAvailable();
   publish();
 #ifdef DEBUG
@@ -72,7 +72,7 @@ void TriggerableIMU::initialize() {
   // initialized_ = true;//强制初始化
 }
 
-void TriggerableIMU::begin() {
+void Camera::begin() {
   if (!is_configured_) {
     return;
   }
@@ -85,9 +85,9 @@ void TriggerableIMU::begin() {
   Sensor::setupTimer();
 }
 
-void TriggerableIMU::setupPublisher() {
-  pub_topic_ = topic_ + "imu_time";
-  publisher_ = ros::Publisher(pub_topic_.c_str(), &imu_time_msg_);
+void Camera::setupPublisher() {
+  pub_topic_ = topic_ + "image_time";
+  publisher_ = ros::Publisher(pub_topic_.c_str(), &image_time_msg_);
   DEBUG_PRINT((topic_ + " (Camera.cpp): Setup publisher with topic ").c_str());
   DEBUG_PRINTLN(publisher_.topic_);
 #ifndef DEBUG
@@ -95,10 +95,10 @@ void TriggerableIMU::setupPublisher() {
 #endif
 }
 
-void TriggerableIMU::setupInitSubscriber() {
+void Camera::setupInitSubscriber() {
   init_sub_topic_ = topic_ + "init";
-  init_subscriber_ = ros::Subscriber<std_msgs::Bool, TriggerableIMU>(
-      init_sub_topic_.c_str(), &TriggerableIMU::initCallback, this);
+  init_subscriber_ = ros::Subscriber<std_msgs::Bool, Camera>(
+      init_sub_topic_.c_str(), &Camera::initCallback, this);
   DEBUG_PRINT(
       (topic_ + " (Camera.cpp): Setup init subscriber with topic ").c_str());
   DEBUG_PRINTLN(init_subscriber_.topic_);
@@ -107,11 +107,11 @@ void TriggerableIMU::setupInitSubscriber() {
 #endif
 }
 
-void TriggerableIMU::initCallback(const std_msgs::Bool &msg) {
+void Camera::initCallback(const std_msgs::Bool &msg) {
   initialized_ = msg.data;
 }
 
-void TriggerableIMU::triggerMeasurement() {
+void Camera::triggerMeasurement() {
   // Check whether an overflow caused the interrupt.
   if (!timer_.checkOverflow()) {
     DEBUG_PRINTLN(
@@ -136,6 +136,13 @@ void TriggerableIMU::triggerMeasurement() {
       // triggers at the beginning of the next image.
       exposing_ = true;
 
+#ifdef ILLUMINATION_MODULE
+      // If the illumination module is active, the LEDs should turn on just
+      // before the camera is exposing.
+      digitalWrite(ILLUMINATION_PIN, HIGH);
+      // Here, a warm-up delay for the LEDs can be added (needs checking).
+      // delayMicroseconds(10);
+#endif
       // Trigger the actual pulse.
       Sensor::trigger(trigger_pin_, TRIGGER_PULSE_US, type_);
 
@@ -144,7 +151,7 @@ void TriggerableIMU::triggerMeasurement() {
       exposure_start_us_ = micros();
 
       // Increament the image number as the camera is triggered now.
-      ++imu_number_;
+      ++image_number_;
 
       // Set the timer to the mid exposure point, e.g. half the exposure time.
       timer_.setCompare(exposure_delay_ticks_ > 0 ? exposure_delay_ticks_ - 1
@@ -180,6 +187,11 @@ void TriggerableIMU::triggerMeasurement() {
             .c_str());
     exposing_ = true;
 
+#ifdef ILLUMINATION_MODULE
+    // Deactivate the LEDs as we are not sure yet whether we get an exposure
+    // signal.
+    digitalWrite(ILLUMINATION_PIN, LOW);
+#endif
     // Trigger the actual pulse.
     Sensor::trigger(trigger_pin_, TRIGGER_PULSE_US, type_);
 
@@ -191,7 +203,7 @@ void TriggerableIMU::triggerMeasurement() {
     exposure_start_us_ = micros();
 
     // Increament the image number as the camera is triggered now.
-    imu_number_++;
+    image_number_++;
 
     // Set the timer to make sure that the camera is triggered in a periodic
     // mode.
@@ -201,7 +213,7 @@ void TriggerableIMU::triggerMeasurement() {
   timer_.resetOverflow();
 }
 
-void TriggerableIMU::exposureEnd() {
+void Camera::exposureEnd() {
   DEBUG_PRINTLN((topic_ + " (Camera.cpp): Exposure end.").c_str());
   if (exposure_compensation_) {
     unsigned long last_exposure_time_us = micros() - exposure_start_us_;
@@ -212,19 +224,19 @@ void TriggerableIMU::exposureEnd() {
   }
 }
 
-void TriggerableIMU::publish() {
+void Camera::publish() {
   if (Sensor::isNewMeasurementAvailable()) {
     DEBUG_PRINTLN((topic_ + " (Camera.cpp): Publish.").c_str());
-    imu_time_msg_.time = Sensor::getTimestamp();
-    imu_time_msg_.number = imu_number_;
+    image_time_msg_.time = Sensor::getTimestamp();
+    image_time_msg_.number = image_number_;
 #ifndef DEBUG
-    publisher_.publish(&imu_time_msg_);
+    publisher_.publish(&image_time_msg_);
 #endif
     Sensor::newMeasurementIsNotAvailable();
   }
 }
 
-void TriggerableIMU::calculateDelayTicksAndCompensate(
+void Camera::calculateDelayTicksAndCompensate(
     const unsigned long &last_exposure_time_us) {
   // The goal here is to shift the time of the next camera trigger half the
   // exposure time before the mid-exposure time.

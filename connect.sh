@@ -1,2 +1,2 @@
 source devel/setup.bash;
-roslaunch realvis connect_board.launch;
+roslaunch  every_sync connect_board.launch;

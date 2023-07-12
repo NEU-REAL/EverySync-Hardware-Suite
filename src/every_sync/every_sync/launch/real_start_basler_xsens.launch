@@ -18,7 +18,6 @@
   <param name="robot_description" command="$(find xacro)/xacro --inorder $(arg model)" />
   <node name="realvis_rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
 
-
   <!-- ********************************************************************************** -->
 
   <!-- camera name prefix -->
@@ -99,7 +98,8 @@
     </node>
   </group>
 
-    <!-- Run EverySync link. -->
+
+      <!-- Run EverySync link. -->
   <node name="rosserial_python" pkg="rosserial_python" type="serial_node.py"
     args="_port:=/dev/versavis _baud:=250000" respawn="true" output="screen" />
 
