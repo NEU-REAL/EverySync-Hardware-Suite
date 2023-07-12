@@ -57,12 +57,13 @@ ros::Subscriber<std_msgs::UInt8> pwm_sub("/versavis/illumination_pwm", &pwmCb);
 // not. Only use a timer once, otherwise there will be unexpected behavior.
 
 // Timer timer_cam0 = Timer((Tcc *)TCC0);
+// Timer timer_imu = Timer((TcCount16 *)TC4);
 Timer timer_trig_imu = Timer((Tcc *)TCC0);
 Timer timer_cam1 = Timer((Tcc *)TCC1);
 Timer timer_cam2 = Timer((TcCount16 *)TC3);
 Timer timer_lidar = Timer((TcCount16 *)TC5);
-
 Timer timer_gnss = Timer((Tcc *)TCC2);
+
 
 /* ----- IMU ----- */
 #ifdef USE_ADIS16445
@@ -75,6 +76,10 @@ ADIS16448BMLZ imu(&nh, IMU_TOPIC, IMU_RATE, timer_imu, 10, 2, 9);
 ADIS16460 imu(&nh, IMU_TOPIC, IMU_RATE, timer_imu, 10, 2, 9);
 #elif defined(USE_VN100)
 VN100 imu(&nh, IMU_TOPIC, IMU_RATE, timer_imu);
+#elif defined(USE_BMI_088)
+Bmi088 imu(&nh, IMU_TOPIC, IMU_RATE, timer_imu,SPI,10,38);
+#elif defined(USE_ICM_42688)
+ICM42688 imu(&nh, IMU_TOPIC, IMU_RATE, timer_imu,SPI,10);
 #endif
 
 /* ----- Cameras ----- */
@@ -168,7 +173,7 @@ void setup() {
   }
 
   /* -----  Declare timers ----- */
-  // Enable TCC1 and TCC2 timers.
+  // Enable TCC0 and TCC1 timers.
   REG_GCLK_CLKCTRL = static_cast<uint16_t>(
       GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID_TCC0_TCC1);
   while (GCLK->STATUS.bit.SYNCBUSY == 1) {

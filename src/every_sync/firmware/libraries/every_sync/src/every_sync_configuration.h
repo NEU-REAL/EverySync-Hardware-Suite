@@ -64,8 +64,6 @@
 #define LIDAR_EXPOSURE_PIN 17
 
 /* ----- EXTERNAL CLK <-- GNSS MODULE -----*/
-// Possible values: USE_ADIS16445, USE_ADIS16448AMLZ, USE_ADIS16448BMLZ,
-// USE_ADIS16460 and USE_VN100
 #define EXTCLK_TOPIC "/realvis/gnss/"
 // #define EXTCLK_TOPIC ""
 #define EXTCLK_RATE 1
@@ -75,7 +73,7 @@
 
 
 /* ----- IMU -----*/
-// Possible values: USE_ADIS16445, USE_ADIS16448AMLZ, USE_ADIS16448BMLZ,
+// Possible values: USE_ADIS16445, USE_ADIS16448AMLZ, USE_ADIS16448BMLZ,USE_BMI_088, USE_ICM_42688
 // USE_ADIS16460 and USE_VN100
 #define NONE_IMU
 #define IMU_TOPIC "/realvis/imu_micro"

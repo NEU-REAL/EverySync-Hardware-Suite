@@ -1,0 +1,22 @@
+<!-- ComplementaryFilter launch file -->
+<launch>
+  <!-- #### Nodelet manager ###################################################### -->
+
+  <node pkg="nodelet" type="nodelet" name="imu_manager"
+    args="manager" output="screen" />
+
+  <!-- #### IMU Driver ########################################################### -->
+
+
+  <!-- #### Complementary filter -->
+
+  <node pkg="imu_complementary_filter" type="complementary_filter_node"
+      name="complementary_filter_gain_node" output="screen">
+    <param name="do_bias_estimation" value="true"/>
+    <param name="do_adaptive_gain" value="true"/>
+    <param name="use_mag" value="false"/>
+    <param name="gain_acc" value="0.01"/>
+    <param name="gain_mag" value="0.01"/>
+  </node>
+  
+</launch>

@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+
+<launch>
+
+  <!-- Run VersaVIS link. -->
+  <node name="rosserial_python" pkg="rosserial_python" type="serial_node.py"
+    args="_port:=/dev/versavis _baud:=115200" respawn="true" output="screen" />
+
+  <!-- Recieve IMU message. -->
+  <node name="imu_receiver" pkg="versavis"
+      type="imu_receiver" required="true" output="screen">
+    <!-- ADIS16448AMLZ parameters -->
+    <param name="imu_accelerator_sensitivity"           value="0.000833" />
+    <!-- <param name="imu_gyro_sensitivity"                  value="0.04" /> -->
+    <param name="imu_gyro_sensitivity"                  value="0.04" />
+    <param name="imu_acceleration_covariance"           value="0.043864908" /> <!-- no idea where it is from -->
+    <param name="imu_gyro_covariance"                   value="6e-9" /> <!-- no idea where it is from -->
+    <param name="imu_sub_topic"           type="string" value="/versavis/imu_micro"/>
+  </node>
+
+  <include file="$(find imu_complementary_filter)/launch/complementary_filter_bmi088.launch" />
+  <!-- Dynamic reconfigure. -->
+  <!-- <node name="reconfigure" pkg="rqt_reconfigure" type="rqt_reconfigure" /> -->
+
+</launch>
