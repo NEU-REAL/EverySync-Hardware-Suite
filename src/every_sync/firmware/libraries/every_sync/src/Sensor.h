@@ -18,18 +18,20 @@
 #include <ros.h>
 //#include <ImuMicro.h>
 //#include <TimeNumbered.h>
-#include <versavis/ImuMicro.h>
-#include <versavis/TimeNumbered.h>
+// #include <versavis/ImuMicro.h>
+// #include <versavis/TimeNumbered.h>
+#include <every_sync/ImuMicro.h>
+#include <every_sync/TimeNumbered.h>
 
 enum trigger_type { INVERTED, NON_INVERTED };
 
 class Sensor {
 public:
   Sensor(ros::NodeHandle *nh, const String &topic, const int rate_hz,
-         Timer &timer, versavis::TimeNumbered &img_time_msg,
+         Timer &timer, every_sync::TimeNumbered &img_time_msg,
          const trigger_type type = trigger_type::NON_INVERTED);
   Sensor(ros::NodeHandle *nh, const String &topic, const int rate_hz,
-         Timer &timer, versavis::ImuMicro &imu_msg,
+         Timer &timer, every_sync::ImuMicro &imu_msg,
          const trigger_type type = trigger_type::NON_INVERTED);
   // Sensor(ros::NodeHandle *nh, const String &topic, const int rate_hz,
   //        versavis::TimeNumbered &gnss_msg);

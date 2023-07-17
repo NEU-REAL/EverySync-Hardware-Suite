@@ -18,7 +18,8 @@
 #include "Sensor.h"
 #include <ros.h>
 #include <std_msgs/Bool.h>
-#include <versavis/TimeNumbered.h>
+// #include <versavis/TimeNumbered.h>
+#include <every_sync/TimeNumbered.h>
 
 // timers Class Definition
 class Camera : public Sensor {
@@ -50,7 +51,7 @@ public:
 
 private:
   // Message to save sequence number and timestamp.
-  versavis::TimeNumbered image_time_msg_;
+  every_sync::TimeNumbered image_time_msg_;
 
   // Hardware pins for trigger and exposure signal.
   const uint8_t trigger_pin_;

@@ -16,7 +16,8 @@
 #include "Arduino.h"
 #include "Sensor.h"
 #include <ros.h>
-#include <versavis/ImuMicro.h>
+// #include <versavis/ImuMicro.h>
+#include <every_sync/ImuMicro.h>
 
 enum ImuReading {
   STAT = 0,
@@ -52,7 +53,7 @@ protected:
   const uint64_t kImuSyncTimeoutUs;
 
 private:
-  versavis::ImuMicro imu_msg_;
+  every_sync::ImuMicro imu_msg_;
 };
 
 #endif

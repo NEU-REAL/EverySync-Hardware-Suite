@@ -60,7 +60,7 @@
 // #define LIDAR_TOPIC ""
 #define LIDAR_RATE 100
 #define LIDAR_TYPE trigger_type::NON_INVERTED
-#define LIDAR_TRIGGER_PIN 2
+#define LIDAR_TRIGGER_PIN 3
 #define LIDAR_EXPOSURE_PIN 17
 
 /* ----- EXTERNAL CLK <-- GNSS MODULE -----*/

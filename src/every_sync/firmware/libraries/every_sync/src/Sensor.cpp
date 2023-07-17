@@ -5,7 +5,7 @@
 
 // Image time message version.
 Sensor::Sensor(ros::NodeHandle *nh, const String &topic, const int rate_hz,
-               Timer &timer, versavis::TimeNumbered &img_time_msg,
+               Timer &timer, every_sync::TimeNumbered &img_time_msg,
                const trigger_type type /* = trigger_type::NON_INVERTED */)
     : nh_(nh), topic_(topic),
       publisher_((topic + "img_time").c_str(), &img_time_msg),
@@ -24,7 +24,7 @@ Sensor::Sensor(ros::NodeHandle *nh, const String &topic, const int rate_hz,
 
 // IMU message version.
 Sensor::Sensor(ros::NodeHandle *nh, const String &topic, const int rate_hz,
-               Timer &timer, versavis::ImuMicro &imu_msg,
+               Timer &timer, every_sync::ImuMicro &imu_msg,
                const trigger_type type /* = trigger_type::NON_INVERTED */)
     : nh_(nh), topic_(topic), publisher_(topic.c_str(), &imu_msg),
       new_measurement_available_(false), rate_hz_(rate_hz), timer_(timer),

@@ -184,8 +184,8 @@ void Lidar::pps_send_utc_time_from_100hz() {
     // Sensor::trigger(trigger_pin_, TRIGGER_PULSE_PPS, type_);
     digitalWrite(LIDAR_TRIGGER_PIN, HIGH);
     // Send NMEA cmd for lidar sync
-    // Serial1.println(GPMRC_CMD);
-    Serial1.println("$GPRMC,114345.130669,A,3606.6834,N,12021.7778,E,0.0,238.3,080523,,,A*50");
+    Serial1.println(GPMRC_CMD);
+    // Serial1.println("$GPRMC,114345.130669,A,3606.6834,N,12021.7778,E,0.0,238.3,080523,,,A*50");
 
     pps_trig_ = false;
   }
@@ -354,7 +354,7 @@ void Lidar::exposureEnd() {
 
 void Lidar::publish() {
   if (Sensor::isNewMeasurementAvailable()) {
-    DEBUG_PRINTLN((topic_ + " (Camera.cpp): Publish.").c_str());
+    DEBUG_PRINTLN((topic_ + " (Lidar.cpp): Publish.").c_str());
     pps_time_msg_.time = Sensor::getTimestamp();
     pps_time_msg_.number = pps_number_;
 #ifndef DEBUG

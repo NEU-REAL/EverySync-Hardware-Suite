@@ -45,9 +45,9 @@ static void pwmCb(const std_msgs::UInt8 &msg) {
 
 /* ----- ROS ----- */
 ros::NodeHandle nh;
-ros::Subscriber<std_msgs::Bool> reset_sub("/versavis/reset", &resetCb);
+ros::Subscriber<std_msgs::Bool> reset_sub("/realvis/reset", &resetCb);
 #ifdef ILLUMINATION_MODULE
-ros::Subscriber<std_msgs::UInt8> pwm_sub("/versavis/illumination_pwm", &pwmCb);
+ros::Subscriber<std_msgs::UInt8> pwm_sub("/realvis/illumination_pwm", &pwmCb);
 #endif
 
 /* ----- Timers ----- */
@@ -252,8 +252,6 @@ void loop() {
 
   delayMicroseconds(500);
   //For Transform Buffer
-
-
 
 
 #ifndef DEBUG
