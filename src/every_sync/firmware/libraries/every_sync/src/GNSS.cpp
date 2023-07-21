@@ -396,23 +396,24 @@ String build_GPRMC_CMD(ros::Time time_from_ros)
 	// ms 保留4位
 	Unix_usec = Unix_nsec / 1000 ;
 	if(Unix_usec >= 1e5){
-		UTC_str.utc_ms  = String(Unix_usec);
+		UTC_str.utc_ms = String(Unix_usec);
 		}
-	else if (UTC.sec >= 1e4){
-		UTC_str.utc_ms  = "0" + String(UTC.sec);
+	else if (Unix_usec >= 1e4){
+		UTC_str.utc_ms = "0" + String(Unix_usec);
 		}
-	else if (UTC.sec >= 1e3){
-		UTC_str.utc_ms  = "00" + String(UTC.sec);
+	else if (Unix_usec >= 1e3){
+		UTC_str.utc_ms = "00" + String(Unix_usec);
 		}
-	else if (UTC.sec >= 1e2){
-		UTC_str.utc_ms  = "000" + String(UTC.sec);
+	else if (Unix_usec >= 1e2){
+		UTC_str.utc_ms = "000" + String(Unix_usec);
 		}
-	else if (UTC.sec >= 1e1){
-		UTC_str.utc_ms  = "0000" + String(UTC.sec);
+	else if (Unix_usec >= 1e1){
+		UTC_str.utc_ms = "0000" + String(Unix_usec);
 		}
 	else{
-		UTC_str.utc_ms = "00000"+String(UTC.sec);//缺位补0
+		UTC_str.utc_ms = "00000" + String(Unix_usec);//缺位补0
 		}
+
 
 	// Livox 
 	// UTC_str.utc_ms = UTC_str.utc_ms[0] + UTC_str.utc_ms[1] + UTC_str.utc_ms[2] ;

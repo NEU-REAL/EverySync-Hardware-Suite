@@ -185,7 +185,7 @@ void Lidar::pps_send_utc_time_from_100hz() {
     digitalWrite(LIDAR_TRIGGER_PIN, HIGH);
     // Send NMEA cmd for lidar sync
     Serial1.println(GPMRC_CMD);
-    // Serial1.println("$GPRMC,114345.130669,A,3606.6834,N,12021.7778,E,0.0,238.3,080523,,,A*50");
+    // Serial1.println("$GPRMC,114345.1306,A,3606.6834,N,12021.7778,E,0.0,238.3,080523,,,A*50");
 
     pps_trig_ = false;
   }
@@ -237,8 +237,8 @@ void Lidar::pps_send_utc_time() {
     // Trigger the PPS pulse.
     Sensor::trigger(trigger_pin_, TRIGGER_PULSE_PPS, type_);
     // Send NMEA cmd for lidar sync
-    // Serial1.println(GPMRC_CMD);
-    Serial1.println("GPRMC,222120.3456,A,2237.496474,N,11356.089515,E,0.0,225.5,010523,2.3,W,A*23");
+    Serial1.println(GPMRC_CMD);
+    // Serial1.println("$GPRMC,024041.00,A,5107.0017737,N,11402.3291611,W,0.080,323.3,020420,0.0,E,A*20");
 
     // Increament the image number as the camera is triggered now.
     pps_number_++;

@@ -226,8 +226,8 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(cam2.exposurePin()), exposureEnd2,
                   FALLING);
 
-  // attachInterrupt(digitalPinToInterrupt(gnss.exposurePin()), external_clockGet,
-  //                 RISING);
+  attachInterrupt(digitalPinToInterrupt(gnss.exposurePin()), external_clockGet,
+                  RISING);
   // 为啥不好使。。。
 
   // DEBUG_PRINTLN(digitalPinToInterrupt(trig_imu.exposurePin()));
@@ -317,5 +317,4 @@ void exposureEnd2() {
 void external_clockGet()
 {
   gnss.get_ext_clk_time();
-  
 }

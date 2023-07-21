@@ -32,7 +32,6 @@
           required="true">
       <param name="ext_clk_sub_topic" type="string" value="/realvis/gnss/external_time"/>
       <param name="ext_clk_pub_topic" type="string" value="/external_trigger"/>
-
     </node>
   </group>
 
