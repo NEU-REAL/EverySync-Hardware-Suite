@@ -7,7 +7,7 @@
 Entry of This Project:
 
 * [EverySync -- HardwareSuite](https://github.com/TheConquerK/EverySync_HardwareSuite) Open source Hardware Suite of EverySync.
-* [EverySync -- PCB and Examples]((https://github.com/TheConquerK/EverySync_PCB) This part is coming soon. Both Altium Designer and LCEDA version will be provided, make sure the project is easy to reproduce.
+* [EverySync -- PCB and Examples](https://github.com/TheConquerK/EverySync_PCB) This part is coming soon. Both Altium Designer and LCEDA version will be provided, make sure the project is easy to reproduce.
 
 
 ## News
