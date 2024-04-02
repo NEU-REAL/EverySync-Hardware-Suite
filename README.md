@@ -2,20 +2,18 @@
 **EverySync** is An Open Hardware Time Syncronization Sensor Suite For Every Casual Sensor In Field Of SLAM.
 - Our project provides a complete, open-source hardware, firmware and software bundle to perform `Hardware Time Synchronization ` of multiple sensors in SLAM system.
 
-<img src="pic/System_pipline.png"  width="600">
+<img src="pic/System_pipline.png"  width="600" align=center>
 
 Entry of This Project:
 
-* [EverySync -- Master In Host PC](https://github.com/TheConquerK/every_sync_master) ROS master program on PC
-
-* [EverySync -- Firmware on Board](https://github.com/TheConquerK/every_sync_firmware) EverySync Board package for arduino IDE
-
 * [EverySync -- HardwareSuite](https://github.com/TheConquerK/EverySync_HardwareSuite) Open source Hardware Suite of EverySync.
+* [EverySync -- PCB and Examples]((https://github.com/TheConquerK/EverySync_PCB) This part is coming soon. Both Altium Designer and LCEDA version will be provided, make sure the project is easy to reproduce.
 
 
 ## News
 - **May 26, 2022** Finish first version named RealVIS v1.0 .
 - **May  8, 2023** Support at least 3 kinds of Lidar.
+- **April  2, 2024** Open-source. Submit to IROS2024. Preprint is comming soon.
 
 ## Supported drivers
 ### Camera 
