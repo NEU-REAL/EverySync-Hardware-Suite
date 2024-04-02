@@ -46,12 +46,12 @@ Entry of This Project:
 ### Clone and build
 ```
 cd catkin_ws/src
-git clone https://github.com/TheConquerK/every_sync_master.git
+git clone https://github.com/TheConquerK/EverySync-Hardware-Suite.git
 catkin_make
 ```
 
 ```
-cd versavis/firmware
+cd everysync/firmware
 ./setup.sh
 ```
 
@@ -83,8 +83,7 @@ Adapt the [configuration file](https://github.com/ethz-asl/versavis/blob/master/
 * Go to `File -> Preferences`
 * Change Sketchbook location to `versavis/firmware/`
 * Install board support:
-    - For AVI 2.1 (the green one): Tools -> Boards -> Boards Manager -> Arduino SAMD Boards (32-bits ARM Cortex-M0+) -> Use version 1.6.20!
-    - For VersaVIS 1.0 (the black one): [Check here](https://github.com/ethz-asl/versavis_hw/)
+    - For EverySync: [Check here](https://github.com/ethz-asl/versavis_hw/)
 * Set `Tools -> Port -> tty/ACM0 (Arduino Zero)`, and `Tools -> Board -> VersaVIS`.
 * Compile using the *Verify* menu option
 * Flash using the *Upload* menu option
