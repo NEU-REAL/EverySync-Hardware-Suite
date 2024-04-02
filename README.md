@@ -2,7 +2,7 @@
 **EverySync** is An Open Hardware Time Syncronization Sensor Suite For Every Casual Sensor In Field Of SLAM.
 - Our project provides a complete, open-source hardware, firmware and software bundle to perform `Hardware Time Synchronization ` of multiple sensors in SLAM system.
 
-<img src="pic/System_pipline.png"  width="600" align=center>
+<img src="pic/System_pipline.png"  width="600" align="center">
 
 Entry of This Project:
 
