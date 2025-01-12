@@ -9,13 +9,20 @@
 Entry of This Project:
 
 * [EverySync -- HardwareSuite](https://github.com/NEU-REAL/EverySync-Hardware-Suite) Open source Hardware Suite of EverySync.
-* [EverySync -- PCB and Examples](https://github.com/TheConquerK/EverySync_PCB) This part is coming soon. Both Altium Designer and LCEDA version will be provided, make sure the project is easy to reproduce.
+* [EverySync -- PCB and Examples](https://github.com/NEU-REAL/EverySync-Hardware-Suite/EverySync_PCB) Released. Both Altium Designer and LCEDA versions are provided, make sure the project is easy to reproduce. And we also provide some examples for developers to create their own hardware suites.
+
+<div align=center>
+<img src="pic/Examples.png"  width="600" align="center">
+</div>
 
 
 ## News
 - **May 26, 2022** Finish first version named RealVIS v1.0 .
 - **May  8, 2023** Support at least 3 kinds of Lidar.
 - **April  2, 2024** Open-source. Submit to IROS2024. Preprint is comming soon.
+- **June  30, 2024** Accepted by IROS2024. 
+- **December 26, 2024** Proceding of IROS2024 is released.
+- **January  13, 2025** Project is totally open source. ⭐Happy New Year⭐
 
 ## Supported drivers
 ### Camera 
@@ -28,6 +35,7 @@ Entry of This Project:
 
 ### TriggeralbeIMU
 * [Xsens](https://github.com/TheConquerK/every_sync_master/tree/master/src/driver/xsens_ros) Support Xsens MTi-100 Series & Xsens MTi-600 Series.Tested with Xsens MTi-300,MTi-630,MTi-670-DK.
+
 ### IMU Support From VersaVIS
 * [ADIS](https://github.com/TheConquerK/every_sync_master/tree/master/src/versavis/versavis/src) Originally Support ADIS16448 from VersaVIS
 
@@ -41,7 +49,16 @@ Entry of This Project:
 
 ## Citing
 
-- To Be Released.
+```
+@inproceedings{wu2024everysync,
+  title={EverySync: An Open Hardware Time Synchronization Sensor Suite for Common Sensors in SLAM},
+  author={Wu, Xuankang and Sun, Haoxiang and Wu, Rongguang and Fang, Zheng},
+  booktitle={2024 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)},
+  pages={12587--12593},
+  year={2024},
+  organization={IEEE}
+}
+```
 
 ## Install
 
@@ -117,5 +134,3 @@ The source code is released under [GPLv3](https://www.gnu.org/licenses/) license
 We are still working on extending the proposed system and improving code reliability.
 
 For any technical issues, please contact Xuankang Wu (1035309950@qq.com) .
-
-<!-- For commercial inquiries, please contact Fei Gao (fgaoaa@zju.edu.cn). -->
