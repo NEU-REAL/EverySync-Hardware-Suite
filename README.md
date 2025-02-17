@@ -133,4 +133,3 @@ The source code is released under [GPLv3](https://www.gnu.org/licenses/) license
 ## Maintenance
 We are still working on extending the proposed system and improving code reliability.
 
-For any technical issues, please contact Xuankang Wu (1035309950@qq.com) .
