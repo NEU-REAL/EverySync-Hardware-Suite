@@ -37,7 +37,7 @@ Entry of This Project:
 * [Xsens](https://github.com/NEU-REAL/EverySync-Hardware-Suite/tree/master/src/driver/xsens_ros) Support Xsens MTi-100 Series & Xsens MTi-600 Series.Tested with Xsens MTi-300,MTi-630,MTi-670-DK.
 
 ### IMU Support From VersaVIS
-* [ADIS](https://github.com/NEU-REAL/EverySync-Hardware-Suite/tree/master/src/versavis/versavis/src) Originally Support ADIS16448 from VersaVIS
+* [ADIS](https://github.com/NEU-REAL/EverySync-Hardware-Suite/tree/master/src/every_sync/every_sync/src) Originally Support ADIS16448 from VersaVIS
 
 ### Lidar
 * [Ouster](https://github.com/NEU-REAL/EverySync-Hardware-Suite/tree/master/src/driver/pylon-ros-camera) tested with Ouster-OS1-32
