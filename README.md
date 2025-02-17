@@ -9,7 +9,7 @@
 Entry of This Project:
 
 * [EverySync -- HardwareSuite](https://github.com/NEU-REAL/EverySync-Hardware-Suite) Open source Hardware Suite of EverySync.
-* [EverySync -- PCB and Examples](https://github.com/NEU-REAL/EverySync-Hardware-Suite/EverySync_PCB) Released. Both Altium Designer and LCEDA versions are provided, make sure the project is easy to reproduce. And we also provide some examples for developers to create their own hardware suites.
+* [EverySync -- PCB and Examples](https://github.com/NEU-REAL/EverySync-Hardware-Suite/tree/master/EverySync_PCB) Released. Both Altium Designer and LCEDA versions are provided, make sure the project is easy to reproduce. And we also provide some examples for developers to create their own hardware suites.
 
 <div align=center>
 <img src="pic/Examples.png"  width="600" align="center">
@@ -22,30 +22,30 @@ Entry of This Project:
 - **April  2, 2024** Open-source. Submit to IROS2024. Preprint is comming soon.
 - **June  30, 2024** Accepted by IROS2024. 
 - **December 26, 2024** Proceding of IROS2024 is released.
-- **January  13, 2025** Project is totally open source. ⭐Happy New Year⭐
+- **January  13, 2025** Project is totally open source. ⭐Happy New Year⭐. 
 
 ## Supported drivers
 ### Camera 
-* [Basler](https://github.com/TheConquerK/every_sync_master/tree/master/src/driver/pylon-ros-camera) tested with acA1920-155uc
-* [HikVision](https://github.com/TheConquerK/every_sync_master/tree/master/src/driver/HIKROBOT-MVS-CAMERA-ROS) tested with HikVision MV-CA023-10UC
+* [Basler](https://github.com/NEU-REAL/EverySync-Hardware-Suite/tree/master/src/driver/pylon-ros-camera) tested with acA1920-155uc
+* [HikVision](https://github.com/NEU-REAL/EverySync-Hardware-Suite/tree/master/src/driver/HIKROBOT-MVS-CAMERA-ROS) tested with HikVision MV-CA023-10UC
 #### Camera Support From VersaVIS
 * [MatrixVision](https://github.com/ethz-asl/bluefox2/tree/devel/versavis) tested with Bluefox 2 MLC200WG, needs adaption for new format
 * [PointGrey/Flir](https://github.com/ethz-asl/flir_camera_driver/tree/devel/versavis) tested with Chameleon 3, Blackfly S
 * [CamBoard](https://github.com/ethz-asl/pico_flexx_driver/tree/devel/versavis) tested with CamBoard pico monstar
 
 ### TriggeralbeIMU
-* [Xsens](https://github.com/TheConquerK/every_sync_master/tree/master/src/driver/xsens_ros) Support Xsens MTi-100 Series & Xsens MTi-600 Series.Tested with Xsens MTi-300,MTi-630,MTi-670-DK.
+* [Xsens](https://github.com/NEU-REAL/EverySync-Hardware-Suite/tree/master/src/driver/xsens_ros) Support Xsens MTi-100 Series & Xsens MTi-600 Series.Tested with Xsens MTi-300,MTi-630,MTi-670-DK.
 
 ### IMU Support From VersaVIS
-* [ADIS](https://github.com/TheConquerK/every_sync_master/tree/master/src/versavis/versavis/src) Originally Support ADIS16448 from VersaVIS
+* [ADIS](https://github.com/NEU-REAL/EverySync-Hardware-Suite/tree/master/src/versavis/versavis/src) Originally Support ADIS16448 from VersaVIS
 
 ### Lidar
-* [Ouster](https://github.com/TheConquerK/every_sync_master/tree/master/src/driver/pylon-ros-camera) tested with Ouster-OS1-32
-* [Robosense](https://github.com/TheConquerK/every_sync_master/tree/master/src/driver/HIKROBOT-MVS-CAMERA-ROS) tested with Robosense16
-* [Livox](https://github.com/TheConquerK/every_sync_master/tree/master/src/driver/HIKROBOT-MVS-CAMERA-ROS) tested with Livox Mid-40 , Mid-70 , Mid-360
+* [Ouster](https://github.com/NEU-REAL/EverySync-Hardware-Suite/tree/master/src/driver/pylon-ros-camera) tested with Ouster-OS1-32
+* [Robosense](https://github.com/NEU-REAL/EverySync-Hardware-Suite/tree/master/src/driver/HIKROBOT-MVS-CAMERA-ROS) tested with Robosense16
+* [Livox](https://github.com/NEU-REAL/EverySync-Hardware-Suite/tree/master/src/driver/HIKROBOT-MVS-CAMERA-ROS) tested with Livox Mid-40 , Mid-70 , Mid-360
 
 ### GNSS/GPS
-* [Ublox](https://github.com/HKUST-Aerial-Robotics/ublox_driver) tested with Ublox ZED-F9P
+* [Ublox](https://github.com/NEU-REAL/EverySync-Hardware-Suite/tree/master/src/driver/ublox_driver) tested with Ublox ZED-F9P
 
 ## Citing
 
@@ -65,7 +65,7 @@ Entry of This Project:
 ### Clone and build
 ```
 cd catkin_ws/src
-git clone https://github.com/TheConquerK/EverySync-Hardware-Suite.git
+git clone https://github.com/NEU-REAL/EverySync-Hardware-Suite.git
 catkin_make
 ```
 
@@ -98,7 +98,7 @@ Adapt the [configuration file](https://github.com/ethz-asl/versavis/blob/master/
 ### Flash firmware on the VersaVIS board
 * Install the arduino IDE from [here](https://www.arduino.cc/en/Main/OldSoftwareReleases#previous). Use version 1.8.2!
     - Note that a small modification of the install script (`install.sh`) might be required. In particular you may need to change the line `RESOURCE_NAME=cc.arduino.arduinoide` to `RESOURCE_NAME=arduino-arduinoide` as per the issue [here](https://github.com/arduino/Arduino/issues/6116#issuecomment-290012812).
-* Open `firmware/versavis/versavis.ino` in the IDE
+* Open `firmware/everysync/everysync.ino` in the IDE
 * Go to `File -> Preferences`
 * Change Sketchbook location to `versavis/firmware/`
 * Install board support:
