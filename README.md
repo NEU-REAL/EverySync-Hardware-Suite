@@ -9,7 +9,7 @@
 Entry of This Project:
 
 * [EverySync -- HardwareSuite](https://github.com/NEU-REAL/EverySync-Hardware-Suite) Open source Hardware Suite of EverySync.
-* [EverySync -- PCB and Examples](https://github.com/NEU-REAL/EverySync-Hardware-Suite/tree/master/EverySync_PCB) Released. Both Altium Designer and LCEDA versions are provided, make sure the project is easy to reproduce. And we also provide some examples for developers to create their own hardware suites.
+* [EverySync -- PCB and Examples](https://github.com/NEU-REAL/EverySync-Hardware-Suite/tree/master/EverySync_PCB) Released. Both [Altium Designer](https://github.com/NEU-REAL/EverySync-Hardware-Suite/tree/master/EverySync_PCB/PCB/EverySync_AD) and [LCEDA](https://oshwhub.com/theconquerk/01-mcu-schdoc_copy) versions are provided, make sure the project is easy to reproduce. And we also provide some examples for developers to create their own hardware suites.
 
 <div align=center>
 <img src="pic/Examples.png"  width="600" align="center">
